@@ -6,26 +6,26 @@ const columns = [
 ];
 
 const captions: Record<string, string> = {
-  '/gallery/img11.webp': 'little sea witch',
-  '/gallery/img12.webp': 'little sea witch',
-  '/gallery/img13.webp': 'jinx',
-  '/gallery/img14.webp': 'landscape study',
-  '/gallery/img15.webp': 'in the snow',
-  '/gallery/img16.webp': 'prismatic',
-  '/gallery/img17.webp': 'melinoe studies',
-  '/gallery/img21.webp': 'little sea witch',
-  '/gallery/img22.webp': 'marcille',
-  '/gallery/img23.webp': 'the glade',
-  '/gallery/img24.webp': 'school',
-  '/gallery/img25.webp': 'silksong',
-  '/gallery/img26.webp': 'marcille',
-  '/gallery/img27.webp': 'melinoe',
-  '/gallery/img31.webp': 'silksong',
-  '/gallery/img32.webp': 'in the stars',
-  '/gallery/img33.webp': 'haustorium',
-  '/gallery/img34.webp': 'who am i',
-  '/gallery/img35.webp': 'hexapple',
-  '/gallery/img36.webp': 'marcille',
+  '/gallery/img11.webp': 'oc | little sea witch',
+  '/gallery/img12.webp': 'oc |little sea witch',
+  '/gallery/img13.webp': 'arcane |jinx',
+  '/gallery/img14.webp': 'study | landscape',
+  '/gallery/img15.webp': 'oc | in the snow',
+  '/gallery/img16.webp': 'oc | prismatic',
+  '/gallery/img17.webp': 'hades II | melinoe',
+  '/gallery/img21.webp': 'oc | little sea witch',
+  '/gallery/img22.webp': 'dungeon meshi | marcille',
+  '/gallery/img23.webp': 'oc | the glade',
+  '/gallery/img24.webp': 'study | school',
+  '/gallery/img25.webp': 'silksong | hornet',
+  '/gallery/img26.webp': 'dungeon meshi | marcille',
+  '/gallery/img27.webp': 'hades II | melinoe',
+  '/gallery/img31.webp': 'silksong | hornet',
+  '/gallery/img32.webp': 'oc | in the stars',
+  '/gallery/img33.webp': 'oc | haustorium',
+  '/gallery/img34.webp': 'oc | who am i',
+  '/gallery/img35.webp': 'arcane | hexapple',
+  '/gallery/img36.webp': 'dungeon meshi | marcille',
 };
 ---
 
@@ -102,22 +102,24 @@ const captions: Record<string, string> = {
     z-index: 50;
     pointer-events: none;
     padding: 6px 10px;
-    background: #000;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
     color: #fff;
     font-size: 0.75rem;
     line-height: 1.2;
     text-transform: uppercase;
-    white-space: nowrap;
     max-width: 200px;
     white-space: normal;
-    border-radius: 0px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
     opacity: 0;
     transform: scale(0.85);
     transform-origin: center center;
     transition:
       opacity 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
-      transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+      color 0.15s ease;
   }
   .gallery-caption.is-visible {
     opacity: 1;
@@ -211,6 +213,53 @@ const captions: Record<string, string> = {
   let switchEndHandler: ((e: TransitionEvent) => void) | null = null;
   let leaveEndHandler: ((e: TransitionEvent) => void) | null = null;
 
+  let currentImg: HTMLImageElement | null = null;
+  const samplerCanvas = document.createElement('canvas');
+  samplerCanvas.width = 8;
+  samplerCanvas.height = 8;
+  const samplerCtx = samplerCanvas.getContext('2d', { willReadFrequently: true });
+
+  function getAverageLuminance(): number {
+    if (!samplerCtx || !captionEl || !currentImg || !currentImg.complete || currentImg.naturalWidth === 0) return 128;
+    const imgRect = currentImg.getBoundingClientRect();
+    const capRect = captionEl.getBoundingClientRect();
+    // Intersection of caption box with image in viewport coords
+    const ix = Math.max(capRect.left, imgRect.left);
+    const iy = Math.max(capRect.top, imgRect.top);
+    const iw = Math.min(capRect.right, imgRect.right) - ix;
+    const ih = Math.min(capRect.bottom, imgRect.bottom) - iy;
+    if (iw <= 0 || ih <= 0) return 128;
+    // Map intersection into image natural coords
+    const scaleX = currentImg.naturalWidth / imgRect.width;
+    const scaleY = currentImg.naturalHeight / imgRect.height;
+    const srcX = (ix - imgRect.left) * scaleX;
+    const srcY = (iy - imgRect.top) * scaleY;
+    const srcW = iw * scaleX;
+    const srcH = ih * scaleY;
+    try {
+      samplerCtx.drawImage(currentImg, srcX, srcY, srcW, srcH, 0, 0, 8, 8);
+      const d = samplerCtx.getImageData(0, 0, 8, 8).data;
+      let lum = 0;
+      for (let i = 0; i < d.length; i += 4) {
+        lum += 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+      }
+      return lum / 64;
+    } catch {
+      return 128;
+    }
+  }
+
+  function updateTextColor() {
+    if (!captionEl || !currentImg) return;
+    const lum = getAverageLuminance();
+    // Continuous grayscale: cubic push away from midpoint ensures contrast at all luminance values
+    const t = lum / 255;
+    const textLum = lum > 128
+      ? Math.round(255 * Math.pow(1 - t, 3))
+      : Math.round(255 * (1 - Math.pow(t, 3)));
+    captionEl.style.color = `rgb(${textLum},${textLum},${textLum})`;
+  }
+
   function showCaption(text: string, x: number, y: number) {
     if (!captionEl || !text) return;
     captionEl.classList.remove('is-leaving');
@@ -232,9 +281,16 @@ const captions: Record<string, string> = {
       switchEndHandler = (e: TransitionEvent) => {
         if (e.propertyName !== 'opacity') return;
         if (!captionEl?.classList.contains('is-switching-out')) return; // cancelled by direct show
-        captionEl?.removeEventListener('transitionend', switchEndHandler as EventListener);
+        captionEl.removeEventListener('transitionend', switchEndHandler as EventListener);
         switchEndHandler = null;
-        if (!captionEl || pendingCaption === null) return;
+        if (!captionEl) return;
+        // If a hide was requested during the switch, or there's nothing pending,
+        // finalize as hidden — otherwise leaveEndHandler will never fire because
+        // opacity is already 0 and no transitionend will be emitted.
+        if (pendingCaption === null || captionEl.classList.contains('is-leaving')) {
+          hideCaption();
+          return;
+        }
         lastCaption = pendingCaption;
         captionEl.textContent = pendingCaption;
         const { left, top } = computeTargetPosition(pendingX, pendingY);
@@ -244,6 +300,7 @@ const captions: Record<string, string> = {
         captionEl.style.top = top + 'px';
         captionEl.classList.remove('is-switching-out');
         pendingCaption = null;
+        updateTextColor();
       };
       captionEl.classList.add('is-switching-out');
       captionEl.addEventListener('transitionend', switchEndHandler as EventListener);
@@ -327,18 +384,22 @@ const captions: Record<string, string> = {
 
   images.forEach((img) => {
     img.addEventListener('mouseenter', (e: MouseEvent) => {
+      currentImg = img;
       cancelHide();
       const caption = img.dataset.caption ?? '';
       showCaption(caption, e.clientX, e.clientY);
+      updateTextColor();
     });
     img.addEventListener('mousemove', (e: MouseEvent) => {
       if (captionEl?.classList.contains('is-leaving')) return;
       if (captionEl?.classList.contains('is-visible')) {
         updatePendingPosition(e.clientX, e.clientY);
         setTargetAndTick(e.clientX, e.clientY);
+        updateTextColor();
       }
     });
     img.addEventListener('mouseleave', () => {
+      currentImg = null;
       scheduleHide();
     });
   });
