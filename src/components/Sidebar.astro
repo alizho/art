@@ -2,10 +2,9 @@
 import ThemeToggle from './ThemeToggle.astro';
 
 const socials = [
-  { name: 'instagram', url: 'https://instagram.com/kiwiirii/' },
-  { name: 'twitter', url: 'https://twitter.com/kiwiiri/' },
-  { name: 'tiktok', url: 'https://tiktok.com/@wiwiirii/' },
-  { name: 'are.na', url: 'https://www.are.na/alicia-zhou/channels' },
+  { name: 'instagram↗', url: 'https://instagram.com/kiwiirii/' },
+  { name: 'twitter↗', url: 'https://twitter.com/kiwiiri/' },
+  { name: 'tiktok↗', url: 'https://tiktok.com/@wiwiirii/' },
 ];
 ---
 
@@ -47,11 +46,35 @@ const socials = [
       ))}
     </nav>
 
-    <!-- <div class="text-center space-y-4 max-w-[14rem]">
-      <p class="text-sm leading-relaxed" style="color: var(--color-text-muted);">
-        still populating this space...
-      </p>
-    </div> -->
+    <div class="dropdowns flex flex-col items-center gap-2 w-full max-w-[14rem] text-sm">
+      <div class="dropdown">
+        <button class="dropdown-toggle" aria-expanded="false">
+          faq <span class="dropdown-arrow">›</span>
+        </button>
+        <div class="dropdown-content">
+          <div>
+            <p>what programs do you use?</p>
+            <p class="answer">procreate / clip studio paint</p>
+            <p>can i use your art?</p>
+            <p class="answer">feel free to use as a profile picture or background, but please don't repost without credit</p>
+            <p>do you take commissions?</p>
+            <p class="answer">not currently, but maybe someday when i'm not as busy</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="dropdown">
+        <button class="dropdown-toggle" aria-expanded="false">
+          about me <span class="dropdown-arrow">›</span>
+        </button>
+        <div class="dropdown-content">
+          <div>
+            <p class="answer">i'm currently a student in computer science, but spend much of my time doodling things in my head :p hoping to post more in the future and maybe booth somewhere someday</p>
+            <p class="answer">into magdalena bay, silksong, cats, and painting ceramic</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <footer class="flex flex-col items-center gap-2 mt-12 lg:mt-0">
@@ -174,4 +197,80 @@ const socials = [
     animation-delay: 0.3s;
     animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
   }
+
+  .dropdowns {
+    margin-top: 0.25rem;
+  }
+
+  .dropdown {
+    width: 100%;
+  }
+
+  .dropdown-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 0.25rem;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--color-link);
+    font-size: 0.875rem;
+    font-family: inherit;
+    transition: color 0.3s ease, opacity 0.3s ease;
+  }
+
+  .dropdown-toggle:hover {
+    opacity: 0.75;
+  }
+
+  .dropdown-arrow {
+    display: inline-block;
+    transition: transform 0.25s ease;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .dropdown-toggle[aria-expanded="true"] .dropdown-arrow {
+    transform: rotate(90deg);
+  }
+
+  .dropdown-content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+    overflow: hidden;
+    /* text-wrap: balance; */
+  }
+
+  .dropdown-content > div {
+    overflow: hidden;
+  }
+
+  .dropdown-toggle[aria-expanded="true"] + .dropdown-content {
+    grid-template-rows: 1fr;
+  }
+
+  .dropdown-content p {
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    margin-top: 0.5rem;
+  }
+
+  .dropdown-content p.answer {
+    color: var(--color-text);
+    margin-top: 0.1rem;
+    margin-bottom: 0.4rem;
+  }
 </style>
+
+<script>
+  document.querySelectorAll('.dropdown-toggle').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!expanded));
+    });
+  });
+</script>

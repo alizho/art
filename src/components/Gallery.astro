@@ -159,13 +159,31 @@ const captions: Record<string, string> = {
   const images = document.querySelectorAll<HTMLImageElement>('.gallery-img');
   const offset = 12;
   const lerp = 0.18;
+
+  const SWITCH_OUT_MS = 160;
+  const LEAVE_MS = 240;
+  const HIDE_DELAY_MS = 60;
+  const COLOR_THROTTLE_MS = 80;
+
   let hideTimeout: ReturnType<typeof setTimeout> | null = null;
+  let switchTimeout: ReturnType<typeof setTimeout> | null = null;
+  let leaveTimeout: ReturnType<typeof setTimeout> | null = null;
   let lastCaption = '';
   let targetLeft = 0;
   let targetTop = 0;
   let currentLeft = 0;
   let currentTop = 0;
   let rafId: number | null = null;
+  let pendingCaption: string | null = null;
+  let pendingX = 0;
+  let pendingY = 0;
+  let lastColorUpdate = 0;
+
+  let currentImg: HTMLImageElement | null = null;
+  const samplerCanvas = document.createElement('canvas');
+  samplerCanvas.width = 8;
+  samplerCanvas.height = 8;
+  const samplerCtx = samplerCanvas.getContext('2d', { willReadFrequently: true });
 
   function computeTargetPosition(clientX: number, clientY: number): { left: number; top: number } {
     if (!captionEl) return { left: 0, top: 0 };
@@ -207,29 +225,15 @@ const captions: Record<string, string> = {
     if (!rafId) rafId = requestAnimationFrame(tick);
   }
 
-  let pendingCaption: string | null = null;
-  let pendingX = 0;
-  let pendingY = 0;
-  let switchEndHandler: ((e: TransitionEvent) => void) | null = null;
-  let leaveEndHandler: ((e: TransitionEvent) => void) | null = null;
-
-  let currentImg: HTMLImageElement | null = null;
-  const samplerCanvas = document.createElement('canvas');
-  samplerCanvas.width = 8;
-  samplerCanvas.height = 8;
-  const samplerCtx = samplerCanvas.getContext('2d', { willReadFrequently: true });
-
   function getAverageLuminance(): number {
     if (!samplerCtx || !captionEl || !currentImg || !currentImg.complete || currentImg.naturalWidth === 0) return 128;
     const imgRect = currentImg.getBoundingClientRect();
     const capRect = captionEl.getBoundingClientRect();
-    // Intersection of caption box with image in viewport coords
     const ix = Math.max(capRect.left, imgRect.left);
     const iy = Math.max(capRect.top, imgRect.top);
     const iw = Math.min(capRect.right, imgRect.right) - ix;
     const ih = Math.min(capRect.bottom, imgRect.bottom) - iy;
     if (iw <= 0 || ih <= 0) return 128;
-    // Map intersection into image natural coords
     const scaleX = currentImg.naturalWidth / imgRect.width;
     const scaleY = currentImg.naturalHeight / imgRect.height;
     const srcX = (ix - imgRect.left) * scaleX;
@@ -249,10 +253,12 @@ const captions: Record<string, string> = {
     }
   }
 
-  function updateTextColor() {
+  function updateTextColor(force = false) {
     if (!captionEl || !currentImg) return;
+    const now = performance.now();
+    if (!force && now - lastColorUpdate < COLOR_THROTTLE_MS) return;
+    lastColorUpdate = now;
     const lum = getAverageLuminance();
-    // Continuous grayscale: cubic push away from midpoint ensures contrast at all luminance values
     const t = lum / 255;
     const textLum = lum > 128
       ? Math.round(255 * Math.pow(1 - t, 3))
@@ -260,13 +266,55 @@ const captions: Record<string, string> = {
     captionEl.style.color = `rgb(${textLum},${textLum},${textLum})`;
   }
 
+  function clearSwitchTimeout() {
+    if (switchTimeout) { clearTimeout(switchTimeout); switchTimeout = null; }
+  }
+
+  function clearLeaveTimeout() {
+    if (leaveTimeout) { clearTimeout(leaveTimeout); leaveTimeout = null; }
+  }
+
+  function hideCaption() {
+    if (!captionEl) return;
+    captionEl.classList.remove('is-visible', 'is-switching-out', 'is-leaving');
+    lastCaption = '';
+    pendingCaption = null;
+    clearSwitchTimeout();
+    clearLeaveTimeout();
+  }
+
+  function finishSwitch() {
+    clearSwitchTimeout();
+    if (!captionEl?.classList.contains('is-switching-out')) return;
+
+    if (pendingCaption === null || captionEl.classList.contains('is-leaving')) {
+      hideCaption();
+      return;
+    }
+    lastCaption = pendingCaption;
+    captionEl.textContent = pendingCaption;
+    const { left, top } = computeTargetPosition(pendingX, pendingY);
+    targetLeft = currentLeft = left;
+    targetTop = currentTop = top;
+    captionEl.style.left = left + 'px';
+    captionEl.style.top = top + 'px';
+    captionEl.classList.remove('is-switching-out');
+    pendingCaption = null;
+    updateTextColor(true);
+    if (!rafId) rafId = requestAnimationFrame(tick);
+  }
+
+  function finishLeave() {
+    clearLeaveTimeout();
+    if (!captionEl?.classList.contains('is-leaving')) return;
+    hideCaption();
+  }
+
   function showCaption(text: string, x: number, y: number) {
     if (!captionEl || !text) return;
     captionEl.classList.remove('is-leaving');
-    if (leaveEndHandler) {
-      captionEl.removeEventListener('transitionend', leaveEndHandler as EventListener);
-      leaveEndHandler = null;
-    }
+    clearLeaveTimeout();
+
     const wasVisible = captionEl.classList.contains('is-visible');
     const switching = wasVisible && lastCaption && lastCaption !== text;
 
@@ -274,44 +322,14 @@ const captions: Record<string, string> = {
       pendingCaption = text;
       pendingX = x;
       pendingY = y;
-      if (captionEl.classList.contains('is-switching-out')) return; // already fading out, new caption stored
-      if (switchEndHandler) {
-        captionEl.removeEventListener('transitionend', switchEndHandler as EventListener);
-      }
-      switchEndHandler = (e: TransitionEvent) => {
-        if (e.propertyName !== 'opacity') return;
-        if (!captionEl?.classList.contains('is-switching-out')) return; // cancelled by direct show
-        captionEl.removeEventListener('transitionend', switchEndHandler as EventListener);
-        switchEndHandler = null;
-        if (!captionEl) return;
-        // If a hide was requested during the switch, or there's nothing pending,
-        // finalize as hidden — otherwise leaveEndHandler will never fire because
-        // opacity is already 0 and no transitionend will be emitted.
-        if (pendingCaption === null || captionEl.classList.contains('is-leaving')) {
-          hideCaption();
-          return;
-        }
-        lastCaption = pendingCaption;
-        captionEl.textContent = pendingCaption;
-        const { left, top } = computeTargetPosition(pendingX, pendingY);
-        targetLeft = currentLeft = left;
-        targetTop = currentTop = top;
-        captionEl.style.left = left + 'px';
-        captionEl.style.top = top + 'px';
-        captionEl.classList.remove('is-switching-out');
-        pendingCaption = null;
-        updateTextColor();
-      };
+      if (captionEl.classList.contains('is-switching-out')) return;
+      clearSwitchTimeout();
       captionEl.classList.add('is-switching-out');
-      captionEl.addEventListener('transitionend', switchEndHandler as EventListener);
+      switchTimeout = setTimeout(finishSwitch, SWITCH_OUT_MS + 20);
       return;
     }
 
-    // Direct show: cancel any in-flight switch so its transitionend doesn't overwrite us
-    if (switchEndHandler && captionEl) {
-      captionEl.removeEventListener('transitionend', switchEndHandler as EventListener);
-      switchEndHandler = null;
-    }
+    clearSwitchTimeout();
     pendingCaption = null;
     lastCaption = text;
     captionEl.textContent = text;
@@ -324,43 +342,16 @@ const captions: Record<string, string> = {
     captionEl.classList.add('is-visible');
   }
 
-  function hideCaption() {
-    if (!captionEl) return;
-    captionEl.classList.remove('is-visible', 'is-switching-out', 'is-leaving');
-    lastCaption = '';
-    pendingCaption = null;
-    if (switchEndHandler) {
-      captionEl.removeEventListener('transitionend', switchEndHandler as EventListener);
-      switchEndHandler = null;
-    }
-    if (leaveEndHandler) {
-      captionEl.removeEventListener('transitionend', leaveEndHandler as EventListener);
-      leaveEndHandler = null;
-    }
-  }
-
   function startLeaveAnimation() {
     if (!captionEl) return;
-    if (leaveEndHandler) {
-      captionEl.removeEventListener('transitionend', leaveEndHandler as EventListener);
-      leaveEndHandler = null;
-    }
+    clearLeaveTimeout();
     captionEl.classList.add('is-leaving');
-    leaveEndHandler = (e: TransitionEvent) => {
-      if (e.propertyName !== 'opacity') return;
-      if (!captionEl?.classList.contains('is-leaving')) return; // cancelled by re-hover
-      if (leaveEndHandler) {
-        captionEl?.removeEventListener('transitionend', leaveEndHandler as EventListener);
-        leaveEndHandler = null;
-      }
-      hideCaption();
-    };
-    captionEl.addEventListener('transitionend', leaveEndHandler as EventListener);
+    leaveTimeout = setTimeout(finishLeave, LEAVE_MS + 20);
   }
 
   function scheduleHide() {
     if (hideTimeout) clearTimeout(hideTimeout);
-    hideTimeout = setTimeout(startLeaveAnimation, 60);
+    hideTimeout = setTimeout(startLeaveAnimation, HIDE_DELAY_MS);
   }
 
   function cancelHide() {
@@ -369,17 +360,7 @@ const captions: Record<string, string> = {
       hideTimeout = null;
     }
     captionEl?.classList.remove('is-leaving');
-    if (leaveEndHandler && captionEl) {
-      captionEl.removeEventListener('transitionend', leaveEndHandler as EventListener);
-      leaveEndHandler = null;
-    }
-  }
-
-  function updatePendingPosition(x: number, y: number) {
-    if (pendingCaption !== null) {
-      pendingX = x;
-      pendingY = y;
-    }
+    clearLeaveTimeout();
   }
 
   images.forEach((img) => {
@@ -388,12 +369,12 @@ const captions: Record<string, string> = {
       cancelHide();
       const caption = img.dataset.caption ?? '';
       showCaption(caption, e.clientX, e.clientY);
-      updateTextColor();
+      updateTextColor(true);
     });
     img.addEventListener('mousemove', (e: MouseEvent) => {
       if (captionEl?.classList.contains('is-leaving')) return;
       if (captionEl?.classList.contains('is-visible')) {
-        updatePendingPosition(e.clientX, e.clientY);
+        if (pendingCaption !== null) { pendingX = e.clientX; pendingY = e.clientY; }
         setTargetAndTick(e.clientX, e.clientY);
         updateTextColor();
       }
