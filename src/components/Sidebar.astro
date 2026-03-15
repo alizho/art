@@ -1,0 +1,144 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+
+const socials = [
+  { name: 'instagram', url: 'https://instagram.com/kiwiirii/' },
+  { name: 'twitter', url: 'https://twitter.com/kiwiiri/' },
+  { name: 'tiktok', url: 'https://tiktok.com/@wiwiirii/' },
+  { name: 'are.na', url: 'https://www.are.na/alicia-zhou/channels' },
+];
+---
+
+<aside class="w-full lg:w-80 xl:w-96 lg:fixed lg:top-0 lg:left-0 lg:h-screen z-20 flex flex-col items-center justify-between px-8 py-12 lg:py-16">
+  <div class="toggle-layer">
+    <ThemeToggle />
+  </div>
+  <div class="flex flex-col items-center gap-6 w-full max-w-xs">
+    <img
+      src="/profile-light.webp"
+      alt="Profile"
+      class="profile-img profile-light w-24 h-24 rounded-full object-cover"
+    />
+    <img
+      src="/profile-dark.webp"
+      alt="Profile"
+      class="profile-img profile-dark w-24 h-24 rounded-full object-cover"
+    />
+
+    <div class="text-center space-y-4 max-w-[14rem]">
+      <p class="text-sm leading-relaxed" style="color: var(--color-text);">
+        illustrating and sometimes animating silly things in my free time c:
+      </p>
+    </div>
+
+    <nav class="nav-links flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm">
+      {socials.map((s) => (
+        <a
+          href={s.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="nav-link"
+        >
+          {s.name}
+        </a>
+      ))}
+    </nav>
+  </div>
+
+  <footer class="flex flex-col items-center gap-2 mt-12 lg:mt-0">
+    <div class="footer-fish-wrap relative w-56 h-20">
+      <video
+        src="/footerfish.webm"
+        autoplay
+        loop
+        muted
+        playsinline
+        class="w-full h-full object-contain"
+      />
+      <span class="footer-ornament footer-ornament--a" aria-hidden="true">⋆ ｡ •</span>
+      <span class="footer-ornament footer-ornament--b" aria-hidden="true">⊹｡˚</span>
+      <span class="footer-ornament footer-ornament--c" aria-hidden="true"> ࣪ ˖</span>
+    </div>
+    <span class="text-xs" style="color: var(--color-text-muted);">
+      .* thanks for swimming by ⋆｡˚
+    </span>
+  </footer>
+</aside>
+
+<style>
+  .toggle-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 30;
+    padding: 1rem 1.5rem;
+    pointer-events: auto;
+  }
+
+  .profile-dark {
+    display: none;
+  }
+
+  :global(html.dark) .profile-light {
+    display: none;
+  }
+
+  :global(html.dark) .profile-dark {
+    display: block;
+  }
+
+  .nav-link {
+    color: var(--color-link);
+    text-decoration: none;
+    transition: color 0.5s ease, opacity 0.5s ease;
+  }
+
+  .nav-link:hover {
+    opacity: 1;
+  }
+
+  /* When any link in the nav is hovered, mute the others */
+  .nav-links:has(.nav-link:hover) .nav-link:not(:hover) {
+    color: var(--color-text-muted);
+    opacity: 0.9;
+  }
+
+  @keyframes ornament-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+
+  .footer-ornament {
+    position: absolute;
+    pointer-events: none;
+    color: var(--color-link);
+    font-size: 1.5rem;
+    opacity: 1;
+    line-height: 1;
+    animation: ornament-float 4s ease-in-out infinite;
+  }
+
+  .footer-ornament--a {
+    top: 0.25rem;
+    left: 0.5rem;
+    animation-duration: 1.8s;
+    animation-delay: 0s;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+  }
+
+  .footer-ornament--b {
+    top: 0.5rem;
+    right: 0.75rem;
+    animation-duration: 2.4s;
+    animation-delay: 0.7s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+  }
+
+  .footer-ornament--c {
+    bottom: 0.35rem;
+    left: 4.5rem;
+    animation-duration: 1.2s;
+    animation-delay: 0.3s;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
+  }
+</style>

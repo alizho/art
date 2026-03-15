@@ -1,0 +1,13 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Sidebar from '../components/Sidebar.astro';
+import Gallery from '../components/Gallery.astro';
+import '../styles/global.css';
+---
+
+<Layout title="Art Portfolio">
+  <main class="flex flex-col lg:flex-row min-h-screen">
+    <Sidebar />
+    <Gallery />
+  </main>
+</Layout>

@@ -1,0 +1,31 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"><title>Art Portfolio</title><script>
+      (function() {
+        var theme = 'light';
+        // var theme = localStorage.getItem('theme')
+        //   || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        // document.documentElement.classList.toggle('dark', theme === 'dark');
+      })();
+    </script><link rel="stylesheet" href="/_astro/index.XDbFURfr.css"></head> <body>  <main class="flex flex-col lg:flex-row min-h-screen"> <aside class="w-full lg:w-80 xl:w-96 lg:fixed lg:top-0 lg:left-0 lg:h-screen z-20 flex flex-col items-center justify-between px-8 py-12 lg:py-16"> <div class="flex flex-col items-center gap-6 w-full max-w-xs"> <span id="theme-toggle" role="button" tabindex="0" aria-label="Toggle theme" data-astro-cid-x3pjskd3></span>  <script>
+  (function initThemeToggle() {
+    const el = document.getElementById('theme-toggle');
+    if (!el) return;
+
+    function update() {
+      const isDark = document.documentElement.classList.contains('dark');
+      el.textContent = isDark ? 'dark' : 'light';
+    }
+
+    update();
+
+    el.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      document.documentElement.classList.toggle('dark', !isDark);
+      localStorage.setItem('theme', isDark ? 'light' : 'dark');
+      update();
+    });
+  })();
+</script> <img src="/profile.webp" alt="Profile" class="w-24 h-24 rounded-full object-cover"> <div class="text-center space-y-4"> <p class="text-sm leading-relaxed" style="color: var(--color-text);">
+i love illustrating and sometimes animating silly things in my free time c:
+</p> </div> <nav class="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm"> <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" style="color: var(--color-link);"> Instagram </a><a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" style="color: var(--color-link);"> Twitter </a><a href="https://tiktok.com/" target="_blank" rel="noopener noreferrer" style="color: var(--color-link);"> TikTok </a><a href="https://are.na/" target="_blank" rel="noopener noreferrer" style="color: var(--color-link);"> Are.na </a> </nav> </div> <footer class="flex flex-col items-center gap-2 mt-12 lg:mt-0"> <video src="/footerfish.webm" autoplay loop muted playsinline class="w-56 h-20 object-contain"></video> <span class="text-xs" style="color: var(--color-text-muted);">
+  .* thanks for swimming by ⋆｡˚
+</span> </footer> </aside> <section class="relative w-full min-h-screen lg:pl-80 xl:pl-96"> <div class="grid grid-cols-2 md:grid-cols-3 gap-2 p-2 lg:p-4"> <div class="flex flex-col gap-2"> <img src="/gallery/img11.webp" alt="" loading="lazy" class="w-full rounded-sm object-cover"><img src="/gallery/img12.webp" alt="" loading="lazy" class="w-full rounded-sm object-cover"><img src="/gallery/img13.webp" alt="" loading="lazy" class="w-full rounded-sm object-cover"><img src="/gallery/img14.webp" alt="" loading="lazy" class="w-full rounded-sm object-cover"> </div><div class="flex flex-col gap-2"> <img src="/gallery/img21.webp" alt="" loading="lazy" class="w-full rounded-sm object-cover"><img src="/gallery/img22.webp" alt="" loading="lazy" class="w-full rounded-sm object-cover"><img src="/gallery/img23.webp" alt="" loading="lazy" class="w-full rounded-sm object-cover"><img src="/gallery/img24.webp" alt="" loading="lazy" class="w-full rounded-sm object-cover"> </div><div class="flex flex-col gap-2"> <img src="/gallery/img31.webp" alt="" loading="lazy" class="w-full rounded-sm object-cover"><img src="/gallery/img32.webp" alt="" loading="lazy" class="w-full rounded-sm object-cover"><img src="/gallery/img33.webp" alt="" loading="lazy" class="w-full rounded-sm object-cover"><img src="/gallery/img34.webp" alt="" loading="lazy" class="w-full rounded-sm object-cover"> </div> </div> <div class="pointer-events-none fixed bottom-0 left-0 w-full h-32 z-10" style="mask-image: linear-gradient(to top, black 10%, transparent 100%); -webkit-mask-image: linear-gradient(to top, black 10%, transparent 100%); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);"></div> </section> </main>  </body></html>

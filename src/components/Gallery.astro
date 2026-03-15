@@ -1,0 +1,336 @@
+---
+const columns = [
+  ['/gallery/img11.webp', '/gallery/img12.webp', '/gallery/img13.webp', '/gallery/img14.webp', '/gallery/img15.webp', '/gallery/img16.webp', '/gallery/img17.webp'],
+  ['/gallery/img21.webp', '/gallery/img22.webp', '/gallery/img23.webp', '/gallery/img24.webp', '/gallery/img25.webp', '/gallery/img26.webp', '/gallery/img27.webp'],
+  ['/gallery/img31.webp', '/gallery/img32.webp', '/gallery/img33.webp', '/gallery/img34.webp', '/gallery/img35.webp', '/gallery/img36.webp'],
+];
+
+const captions: Record<string, string> = {
+  '/gallery/img11.webp': 'little sea witch',
+  '/gallery/img12.webp': 'little sea witch',
+  '/gallery/img13.webp': 'jinx',
+  '/gallery/img14.webp': 'landscape study',
+  '/gallery/img15.webp': 'in the snow',
+  '/gallery/img16.webp': 'prismatic',
+  '/gallery/img17.webp': 'melinoe studies',
+  '/gallery/img21.webp': 'little sea witch',
+  '/gallery/img22.webp': 'marcille',
+  '/gallery/img23.webp': 'the glade',
+  '/gallery/img24.webp': 'school',
+  '/gallery/img25.webp': 'silksong',
+  '/gallery/img26.webp': 'marcille',
+  '/gallery/img27.webp': 'melinoe',
+  '/gallery/img31.webp': 'silksong',
+  '/gallery/img32.webp': 'in the stars',
+  '/gallery/img33.webp': 'haustorium',
+  '/gallery/img34.webp': 'who am i',
+  '/gallery/img35.webp': 'hexapple',
+  '/gallery/img36.webp': 'marcille',
+};
+---
+
+<section class="relative w-full min-h-screen lg:pl-80 xl:pl-96">
+  <div id="gallery-caption" class="gallery-caption" aria-hidden="true"></div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-2 p-2 lg:p-4">
+    {columns.map((col) => (
+      <div class="flex flex-col gap-2">
+        {col.map((src) => (
+          <img
+            src={src}
+            alt={captions[src] ?? ''}
+            loading="lazy"
+            class="gallery-img w-full object-cover"
+            data-caption={captions[src] ?? ''}
+          />
+        ))}
+      </div>
+    ))}
+  </div>
+
+  <div id="top-blur" class="pointer-events-none fixed top-0 left-0 w-full h-44 z-10">
+    <div
+      class="absolute inset-0 top-blur-layer"
+      style="opacity: 0; mask-image: linear-gradient(to bottom, black 0%, transparent 60%); -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 60%); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);"
+    />
+    <div
+      class="absolute inset-0 top-blur-layer"
+      style="opacity: 0; mask-image: linear-gradient(to bottom, black 0%, transparent 40%); -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 40%); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);"
+    />
+    <div
+      class="absolute inset-0 top-blur-layer"
+      style="opacity: 0; mask-image: linear-gradient(to bottom, black 0%, transparent 25%); -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 25%); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);"
+    />
+    <div
+      class="absolute inset-0 top-blur-layer"
+      style="opacity: 0; mask-image: linear-gradient(to bottom, black 0%, transparent 15%); -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 15%); backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);"
+    />
+  </div>
+
+  <div class="pointer-events-none fixed bottom-0 left-0 w-full h-44 z-10">
+    <div
+      class="absolute inset-0"
+      style="mask-image: linear-gradient(to top, black 0%, transparent 60%); -webkit-mask-image: linear-gradient(to top, black 0%, transparent 60%); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);"
+    />
+    <div
+      class="absolute inset-0"
+      style="mask-image: linear-gradient(to top, black 0%, transparent 40%); -webkit-mask-image: linear-gradient(to top, black 0%, transparent 40%); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);"
+    />
+    <div
+      class="absolute inset-0"
+      style="mask-image: linear-gradient(to top, black 0%, transparent 25%); -webkit-mask-image: linear-gradient(to top, black 0%, transparent 25%); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);"
+    />
+    <div
+      class="absolute inset-0"
+      style="mask-image: linear-gradient(to top, black 0%, transparent 15%); -webkit-mask-image: linear-gradient(to top, black 0%, transparent 15%); backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);"
+    />
+  </div>
+</section>
+
+<style>
+  .gallery-caption {
+    font-family: 'IBM Plex Mono', monospace;
+    position: fixed;
+    z-index: 50;
+    pointer-events: none;
+    padding: 6px 10px;
+    background: #000;
+    color: #fff;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    text-transform: uppercase;
+    white-space: nowrap;
+    max-width: 200px;
+    white-space: normal;
+    border-radius: 0px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transform: scale(0.85);
+    transform-origin: center center;
+    transition:
+      opacity 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+      transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .gallery-caption.is-visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .gallery-caption.is-leaving {
+    opacity: 0;
+    transform: scale(0.92);
+    transition:
+      opacity 0.24s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .gallery-caption.is-switching-out {
+    opacity: 0;
+    transform: scale(0.92);
+    transition:
+      opacity 0.16s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.16s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+</style>
+
+<script is:inline>
+  (function() {
+    var layers = document.querySelectorAll('.top-blur-layer');
+    if (!layers.length) return;
+    window.addEventListener('scroll', function() {
+      var o = Math.min(window.scrollY / 150, 1);
+      for (var i = 0; i < layers.length; i++) {
+        layers[i].style.opacity = o;
+      }
+    }, { passive: true });
+  })();
+</script>
+
+<script>
+  const captionEl = document.getElementById('gallery-caption');
+  const images = document.querySelectorAll<HTMLImageElement>('.gallery-img');
+  const offset = 12;
+  const lerp = 0.18;
+  let hideTimeout: ReturnType<typeof setTimeout> | null = null;
+  let lastCaption = '';
+  let targetLeft = 0;
+  let targetTop = 0;
+  let currentLeft = 0;
+  let currentTop = 0;
+  let rafId: number | null = null;
+
+  function computeTargetPosition(clientX: number, clientY: number): { left: number; top: number } {
+    if (!captionEl) return { left: 0, top: 0 };
+    const rect = captionEl.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
+    const margin = 8;
+    let left = clientX + offset;
+    let top = clientY + offset;
+    if (left + w + margin > window.innerWidth) left = clientX - w - offset;
+    if (top + h + margin > window.innerHeight) top = clientY - h - offset;
+    if (left < margin) left = margin;
+    if (top < margin) top = margin;
+    return { left, top };
+  }
+
+  function tick() {
+    if (!captionEl?.classList.contains('is-visible') || captionEl.classList.contains('is-leaving') || captionEl.classList.contains('is-switching-out')) {
+      rafId = null;
+      return;
+    }
+    const dx = targetLeft - currentLeft;
+    const dy = targetTop - currentTop;
+    if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) {
+      rafId = null;
+      return;
+    }
+    currentLeft += dx * lerp;
+    currentTop += dy * lerp;
+    captionEl.style.left = Math.round(currentLeft) + 'px';
+    captionEl.style.top = Math.round(currentTop) + 'px';
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function setTargetAndTick(x: number, y: number) {
+    const { left, top } = computeTargetPosition(x, y);
+    targetLeft = left;
+    targetTop = top;
+    if (!rafId) rafId = requestAnimationFrame(tick);
+  }
+
+  let pendingCaption: string | null = null;
+  let pendingX = 0;
+  let pendingY = 0;
+  let switchEndHandler: ((e: TransitionEvent) => void) | null = null;
+  let leaveEndHandler: ((e: TransitionEvent) => void) | null = null;
+
+  function showCaption(text: string, x: number, y: number) {
+    if (!captionEl || !text) return;
+    captionEl.classList.remove('is-leaving');
+    if (leaveEndHandler) {
+      captionEl.removeEventListener('transitionend', leaveEndHandler as EventListener);
+      leaveEndHandler = null;
+    }
+    const wasVisible = captionEl.classList.contains('is-visible');
+    const switching = wasVisible && lastCaption && lastCaption !== text;
+
+    if (switching) {
+      pendingCaption = text;
+      pendingX = x;
+      pendingY = y;
+      if (captionEl.classList.contains('is-switching-out')) return; // already fading out, new caption stored
+      if (switchEndHandler) {
+        captionEl.removeEventListener('transitionend', switchEndHandler as EventListener);
+      }
+      switchEndHandler = (e: TransitionEvent) => {
+        if (e.propertyName !== 'opacity') return;
+        if (!captionEl?.classList.contains('is-switching-out')) return; // cancelled by direct show
+        captionEl?.removeEventListener('transitionend', switchEndHandler as EventListener);
+        switchEndHandler = null;
+        if (!captionEl || pendingCaption === null) return;
+        lastCaption = pendingCaption;
+        captionEl.textContent = pendingCaption;
+        const { left, top } = computeTargetPosition(pendingX, pendingY);
+        targetLeft = currentLeft = left;
+        targetTop = currentTop = top;
+        captionEl.style.left = left + 'px';
+        captionEl.style.top = top + 'px';
+        captionEl.classList.remove('is-switching-out');
+        pendingCaption = null;
+      };
+      captionEl.classList.add('is-switching-out');
+      captionEl.addEventListener('transitionend', switchEndHandler as EventListener);
+      return;
+    }
+
+    // Direct show: cancel any in-flight switch so its transitionend doesn't overwrite us
+    if (switchEndHandler && captionEl) {
+      captionEl.removeEventListener('transitionend', switchEndHandler as EventListener);
+      switchEndHandler = null;
+    }
+    pendingCaption = null;
+    lastCaption = text;
+    captionEl.textContent = text;
+    const { left, top } = computeTargetPosition(x, y);
+    targetLeft = currentLeft = left;
+    targetTop = currentTop = top;
+    captionEl.style.left = left + 'px';
+    captionEl.style.top = top + 'px';
+    captionEl.classList.remove('is-switching-out');
+    captionEl.classList.add('is-visible');
+  }
+
+  function hideCaption() {
+    if (!captionEl) return;
+    captionEl.classList.remove('is-visible', 'is-switching-out', 'is-leaving');
+    lastCaption = '';
+    pendingCaption = null;
+    if (switchEndHandler) {
+      captionEl.removeEventListener('transitionend', switchEndHandler as EventListener);
+      switchEndHandler = null;
+    }
+    if (leaveEndHandler) {
+      captionEl.removeEventListener('transitionend', leaveEndHandler as EventListener);
+      leaveEndHandler = null;
+    }
+  }
+
+  function startLeaveAnimation() {
+    if (!captionEl) return;
+    if (leaveEndHandler) {
+      captionEl.removeEventListener('transitionend', leaveEndHandler as EventListener);
+      leaveEndHandler = null;
+    }
+    captionEl.classList.add('is-leaving');
+    leaveEndHandler = (e: TransitionEvent) => {
+      if (e.propertyName !== 'opacity') return;
+      if (!captionEl?.classList.contains('is-leaving')) return; // cancelled by re-hover
+      if (leaveEndHandler) {
+        captionEl?.removeEventListener('transitionend', leaveEndHandler as EventListener);
+        leaveEndHandler = null;
+      }
+      hideCaption();
+    };
+    captionEl.addEventListener('transitionend', leaveEndHandler as EventListener);
+  }
+
+  function scheduleHide() {
+    if (hideTimeout) clearTimeout(hideTimeout);
+    hideTimeout = setTimeout(startLeaveAnimation, 60);
+  }
+
+  function cancelHide() {
+    if (hideTimeout) {
+      clearTimeout(hideTimeout);
+      hideTimeout = null;
+    }
+    captionEl?.classList.remove('is-leaving');
+    if (leaveEndHandler && captionEl) {
+      captionEl.removeEventListener('transitionend', leaveEndHandler as EventListener);
+      leaveEndHandler = null;
+    }
+  }
+
+  function updatePendingPosition(x: number, y: number) {
+    if (pendingCaption !== null) {
+      pendingX = x;
+      pendingY = y;
+    }
+  }
+
+  images.forEach((img) => {
+    img.addEventListener('mouseenter', (e: MouseEvent) => {
+      cancelHide();
+      const caption = img.dataset.caption ?? '';
+      showCaption(caption, e.clientX, e.clientY);
+    });
+    img.addEventListener('mousemove', (e: MouseEvent) => {
+      if (captionEl?.classList.contains('is-leaving')) return;
+      if (captionEl?.classList.contains('is-visible')) {
+        updatePendingPosition(e.clientX, e.clientY);
+        setTargetAndTick(e.clientX, e.clientY);
+      }
+    });
+    img.addEventListener('mouseleave', () => {
+      scheduleHide();
+    });
+  });
+</script>
