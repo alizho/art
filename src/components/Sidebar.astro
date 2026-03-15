@@ -27,6 +27,9 @@ const socials = [
 
     <div class="text-center space-y-4 max-w-[14rem]">
       <p class="text-sm leading-relaxed" style="color: var(--color-text);">
+        kiwi
+      </p>
+      <p class="text-sm leading-relaxed" style="color: var(--color-text);">
         illustrating and sometimes animating silly things in my free time c:
       </p>
     </div>
@@ -43,17 +46,31 @@ const socials = [
         </a>
       ))}
     </nav>
+
+    <!-- <div class="text-center space-y-4 max-w-[14rem]">
+      <p class="text-sm leading-relaxed" style="color: var(--color-text-muted);">
+        still populating this space...
+      </p>
+    </div> -->
   </div>
 
   <footer class="flex flex-col items-center gap-2 mt-12 lg:mt-0">
     <div class="footer-fish-wrap relative w-56 h-20">
       <video
-        src="/footerfish.webm"
+        src="/footerfish-light.webm"
         autoplay
         loop
         muted
         playsinline
-        class="w-full h-full object-contain"
+        class="footer-fish-light w-full h-full object-contain"
+      />
+      <video
+        src="/footerfish-dark.webm"
+        autoplay
+        loop
+        muted
+        playsinline
+        class="footer-fish-dark w-full h-full object-contain"
       />
       <span class="footer-ornament footer-ornament--a" aria-hidden="true">⋆ ｡ •</span>
       <span class="footer-ornament footer-ornament--b" aria-hidden="true">⊹｡˚</span>
@@ -87,6 +104,21 @@ const socials = [
     display: block;
   }
 
+  .footer-fish-light,
+  .footer-fish-dark {
+    position: absolute;
+    inset: 0;
+  }
+
+  .footer-fish-light {
+    transition: opacity 0.3s ease;
+    z-index: 1;
+  }
+
+  :global(html.dark) .footer-fish-light {
+    opacity: 0;
+  }
+
   .nav-link {
     color: var(--color-link);
     text-decoration: none;
@@ -109,6 +141,7 @@ const socials = [
   }
 
   .footer-ornament {
+    z-index: 20;
     position: absolute;
     pointer-events: none;
     color: var(--color-link);

@@ -29,7 +29,7 @@ const captions: Record<string, string> = {
 };
 ---
 
-<section class="relative w-full min-h-screen lg:pl-80 xl:pl-96">
+<section class="relative w-full min-h-screen lg:pl-80 xl:pl-96 pb-16">
   <div id="gallery-caption" class="gallery-caption" aria-hidden="true"></div>
   <div class="grid grid-cols-1 md:grid-cols-3 gap-2 p-2 lg:p-4">
     {columns.map((col) => (
@@ -46,6 +46,9 @@ const captions: Record<string, string> = {
       </div>
     ))}
   </div>
+  <p class="gallery-more mt-6 text-right text-sm pr-4 lg:pr-6" style="color: var(--color-text-muted);">
+    + more to come...
+  </p>
 
   <div id="top-blur" class="pointer-events-none fixed top-0 left-0 w-full h-44 z-10">
     <div
@@ -87,6 +90,12 @@ const captions: Record<string, string> = {
 </section>
 
 <style>
+  @media (pointer: coarse) {
+    .gallery-caption {
+      display: none !important;
+    }
+  }
+
   .gallery-caption {
     font-family: 'IBM Plex Mono', monospace;
     position: fixed;
